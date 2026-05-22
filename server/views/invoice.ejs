@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice #<%= order._id.toString().slice(-8).toUpperCase() %></title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f5f5f5; color: #333; padding: 40px 20px; }
+    .invoice-box { max-width: 800px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
+    .invoice-header { background: linear-gradient(135deg, #7C3AED, #EC4899); color: white; padding: 40px; display: flex; justify-content: space-between; align-items: center; }
+    .brand-name { font-size: 32px; font-weight: 800; }
+    .invoice-title { text-align: right; }
+    .invoice-title h2 { font-size: 24px; font-weight: 300; letter-spacing: 3px; }
+    .invoice-title p { font-size: 14px; opacity: 0.8; margin-top: 4px; }
+    .invoice-body { padding: 40px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
+    .info-block h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-bottom: 8px; }
+    .info-block p { font-size: 15px; line-height: 1.6; }
+    .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: #EDE9FE; color: #7C3AED; }
+    .items-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+    .items-table th { background: #F9FAFB; padding: 12px 16px; text-align: left; font-size: 12px; text-transform: uppercase; color: #666; border-bottom: 2px solid #E5E7EB; }
+    .items-table td { padding: 16px; border-bottom: 1px solid #F3F4F6; font-size: 14px; }
+    .items-table tr:last-child td { border-bottom: none; }
+    .totals { display: flex; justify-content: flex-end; }
+    .totals-box { width: 280px; border: 1px solid #E5E7EB; border-radius: 8px; overflow: hidden; }
+    .totals-row { display: flex; justify-content: space-between; padding: 12px 16px; font-size: 14px; border-bottom: 1px solid #E5E7EB; }
+    .totals-row:last-child { border-bottom: none; background: linear-gradient(135deg, #7C3AED, #EC4899); color: white; font-weight: 700; font-size: 16px; }
+    .invoice-footer { background: #F9FAFB; padding: 24px 40px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #E5E7EB; }
+    .invoice-footer p { font-size: 13px; color: #999; }
+    .print-btn { background: linear-gradient(135deg, #7C3AED, #EC4899); color: white; border: none; padding: 10px 24px; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 600; }
+    @media print { .print-btn { display: none; } body { background: white; padding: 0; } .invoice-box { box-shadow: none; } }
+  </style>
+</head>
+<body>
+  <div class="invoice-box">
+    <div class="invoice-header">
+      <div class="brand-name">Clothify</div>
+      <div class="invoice-title">
+        <h2>INVOICE</h2>
+        <p>#<%= order._id.toString().slice(-8).toUpperCase() %></p>
+      </div>
+    </div>
+
+    <div class="invoice-body">
+      <div class="info-grid">
+        <div class="info-block">
+          <h4>Bill To</h4>
+          <p><strong><%= order.address.name %></strong></p>
+          <p><%= order.address.city %></p>
+          <p>Pincode: <%= order.address.pincode %></p>
+        </div>
+        <div class="info-block">
+          <h4>Order Details</h4>
+          <p>Date: <%= new Date(order.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) %></p>
+          <p>Payment: <%= order.paymentMethod %></p>
+          <p>Status: <span class="status-badge"><%= order.status %></span></p>
+        </div>
+      </div>
+
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Qty</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% order.items.forEach(function(item, index) { %>
+            <tr>
+              <td><%= index + 1 %></td>
+              <td><%= item.name %></td>
+              <td>₹<%= item.price %></td>
+              <td><%= item.quantity %></td>
+              <td>₹<%= item.price * item.quantity %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+
+      <div class="totals">
+        <div class="totals-box">
+          <div class="totals-row"><span>Subtotal</span><span>₹<%= order.amount %></span></div>
+          <div class="totals-row"><span>Delivery</span><span>Free</span></div>
+          <div class="totals-row"><span>Total</span><span>₹<%= order.amount %></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="invoice-footer">
+      <p>Thank you for shopping with Clothify! 🛍️</p>
+      <button class="print-btn" onclick="window.print()">🖨️ Print Invoice</button>
+    </div>
+  </div>
+</body>
+</html>
